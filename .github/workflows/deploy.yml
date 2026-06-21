@@ -3,28 +3,30 @@ name: Backend GitOps Pipeline
 on:
   push:
     branches:
-        - main
+      - main
     paths:
-        - 'backend/**'
+      - 'backend/**'
 
 jobs:
-    build-and-update:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout Code
-              uses: actions/checkout@v3
+  build-and-update:
+    runs-on: ubuntu-latest
+    
+    env:
+      IMAGE_TAG: ${{ github.sha }}
 
-            - name: Build and Push Docker Image
-              run: |
-                IMAGE_TAG=${{ github.sha }}
-                docker build -t venuradenethpriya/backend:$IMAGE_TAG ./backend
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-            - name: Update Kubernets Mainfest for ArgoCD
-              run: |
-                sed -i "s|venuradenethpriya/backend:.*|venuradenethpriya/backend:$IMAGE_TAG|g" backend/backend.yaml
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t venuradenethpriya/backend:$IMAGE_TAG ./backend
 
-                
-                git config --global user.name "GitHub Actions"
-                git config --global user.email "actions@github.com"
-                git commit -am "Update backend image to $IMAGE_TAG"
-                git push
+      - name: Update Kubernetes Manifest for ArgoCD
+        run: |
+          sed -i "s|venuradenethpriya/backend:.*|venuradenethpriya/backend:$IMAGE_TAG|g" backend/backend.yaml
+          
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git commit -am "Update backend image to $IMAGE_TAG"
+          git push
