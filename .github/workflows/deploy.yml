@@ -1,4 +1,4 @@
-name: Backend GitOps Pipeline Fixed
+name: Backend GitOps Pipeline
 
 on:
   push:
